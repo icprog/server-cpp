@@ -22,7 +22,7 @@ DBUtil::~DBUtil(void) {
     db_CloseConnectHandle(&this->dbConnect);
 }
 template <typename OBJECT>
-void DBUtil::insert(OBJECT* object){
+void DBUtil::Insert(OBJECT* object){
     string fields,values;
     map<string,string>& objectFields = object->getSQLFields();
     for(map<string,string>::iterator iter = objectFields.begin(); iter != objectFields.end(); ++iter){

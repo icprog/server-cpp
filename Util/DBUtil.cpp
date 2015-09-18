@@ -16,13 +16,20 @@ DBUtil::DBUtil(DB_TYPE type) {
     if(db_AllocStmt(&this->dbConnect) == DB_RESULT_ERROR)
         throw runtime_error("new DBUtil(db_AllocStmt)...");
 }
+
 DBUtil::~DBUtil(void) {
     db_FreeResult(&this->dbConnect);
     db_CloseStmt(&this->dbConnect);
     db_CloseConnectHandle(&this->dbConnect);
 }
+
 template <typename OBJECT>
-void DBUtil::Insert(OBJECT* object){
+bool DBUtil::get(OBJECT* object,const char* key){
+    return false;
+}
+
+template <typename OBJECT>
+void DBUtil::insert(OBJECT* object){
     string fields,values;
     map<string,string>& objectFields = object->getSQLFields();
     for(map<string,string>::iterator iter = objectFields.begin(); iter != objectFields.end(); ++iter){

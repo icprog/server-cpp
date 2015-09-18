@@ -39,5 +39,4 @@ public:
     void setLoginTime(const string& loginTime);
 };
 
-
 #endif //SERVER_USER_H

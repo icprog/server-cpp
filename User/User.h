@@ -13,30 +13,19 @@ using std::map;
 
 class User {
 private:
+    void* FIELDS[5];
     map<string,string> SQLFields;
 protected:
-    string userId;
-    string userName;
-    string sessionId;
-    string loginTime;
+    char userId[32];
+    char userName[64];
+    char sessionId[32];
+    unsigned long long id;
 public:
     static const char* TABLE_NAME;
     map<string,string>& getSQLFields(void);
 
     User(void);
     ~User(void);
-
-    const string& getUserId(void) const;
-    void setUserId(const string& userId);
-
-    const string& getUserName(void) const;
-    void setUserName(const string& userName);
-
-    const string& getSessionId(void) const;
-    void setSessionId(const string& sessionId);
-
-    const string& getLoginTime(void) const;
-    void setLoginTime(const string& loginTime);
 };
 
 #endif //SERVER_USER_H

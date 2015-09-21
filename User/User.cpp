@@ -7,21 +7,15 @@
 using std::exception;
 
 const char* User::TABLE_NAME = "user";
-map<string,string>& User::getSQLFields(void){
-    return this->SQLFields;
+map<string,pair<void*,size_t> >& User::getTableFields(void){
+    return this->SQLTableFields;
 }
 
 User::User(void) {
-    FIELDS_BUFFER[0] = userId;
-    FIELDS_BUFFER[1] = userName;
-    FIELDS_BUFFER[2] = sessionId;
-    FIELDS_BUFFER[3] = &loginTime;
-    FIELDS_BUFFER[4] = &id;
-
-    FIELDS_LENGTH[0] = sizeof(userId);
-    FIELDS_LENGTH[1] = sizeof(userName);
-    FIELDS_LENGTH[2] = sizeof(sessionId);
-    FIELDS_LENGTH[3] = sizeof(loginTime);
-    FIELDS_LENGTH[4] = sizeof(id);
+    this->SQLTableFields["user_id"] = pair<void*,size_t>(userId,sizeof(userId));
+    this->SQLTableFields["username"] = pair<void*,size_t>(userName,sizeof(userName));
+    this->SQLTableFields["session_id"] = pair<void*,size_t>(sessionId,sizeof(sessionId));
+    this->SQLTableFields["login_time"] = pair<void*,size_t>(&loginTime,sizeof(loginTime));
+    this->SQLTableFields["id"] = pair<void*,size_t>(&id,sizeof(id));
 }
 User::~User(void) { }

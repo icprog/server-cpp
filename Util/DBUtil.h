@@ -14,7 +14,7 @@ using std::map;
 
 class DBUtil{
 private:
-    DBUtil(){}
+    DBUtil(void){}
 protected:
     DB_HANDLE dbHandle;
 public:

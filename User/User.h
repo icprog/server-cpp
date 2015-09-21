@@ -11,12 +11,11 @@
 
 using std::string;
 using std::map;
+using std::pair;
 
 class User {
 private:
-    void* FIELDS_BUFFER[5];
-    size_t FIELDS_LENGTH[5];
-    map<string,string> SQLFields;
+    map<string,pair<void*,size_t> > SQLTableFields;
 protected:
     char userId[32];
     char userName[64];
@@ -25,7 +24,7 @@ protected:
     unsigned long long id;
 public:
     static const char* TABLE_NAME;
-    map<string,string>& getSQLFields(void);
+    map<string,pair<void*,size_t> >& getTableFields(void);
 
     User(void);
     ~User(void);

@@ -16,7 +16,7 @@ class DBUtil{
 private:
     DBUtil(){}
 protected:
-    DB_CONNECT dbConnect;
+    DB_HANDLE dbHandle;
 public:
     explicit DBUtil(DB_TYPE type);
     ~DBUtil(void);

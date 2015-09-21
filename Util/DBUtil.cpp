@@ -9,18 +9,18 @@ using std::stringstream;
 using std::runtime_error;
 
 DBUtil::DBUtil(DB_TYPE type) {
-    if(db_CreateConnectHandle(&this->dbConnect,type) == NULL)
+    if(db_CreateConnectHandle(&this->dbHandle,type) == NULL)
         throw runtime_error("new DBUtil(db_CreateConnectHandle)...");
-    if(db_SetupConnect(&this->dbConnect,"127.0.0.1",MYSQL_PORT,"root","123456","chat") == NULL)
+    if(db_SetupConnect(&this->dbHandle,"127.0.0.1",MYSQL_PORT,"root","123456","chat") == NULL)
         throw runtime_error("new DBUtil(db_SetupConnect)...");
-    if(db_AllocStmt(&this->dbConnect) == DB_RESULT_ERROR)
+    if(db_AllocStmt(&this->dbHandle) == DB_RESULT_ERROR)
         throw runtime_error("new DBUtil(db_AllocStmt)...");
 }
 
 DBUtil::~DBUtil(void) {
-    db_FreeResult(&this->dbConnect);
-    db_CloseStmt(&this->dbConnect);
-    db_CloseConnectHandle(&this->dbConnect);
+    db_FreeResult(&this->dbHandle);
+    db_CloseStmt(&this->dbHandle);
+    db_CloseConnectHandle(&this->dbHandle);
 }
 
 template <typename OBJECT>
@@ -44,8 +44,8 @@ void DBUtil::insert(OBJECT* object){
     ss << "insert into " << OBJECT::TABLE_NAME << " (" << fields << ") " << "values (" << values << ")";
     string sql = ss.str();
     ss.str("");
-    if(db_SQLPrepare(&this->dbConnect,sql.c_str(),sql.length()) == DB_RESULT_ERROR)
+    if(db_SQLPrepare(&this->dbHandle,sql.c_str(),sql.length()) == DB_RESULT_ERROR)
         throw runtime_error("DBUtil insert(db_SQLPrepare)...");
-    if(db_SQLExecute(&this->dbConnect) == DB_RESULT_ERROR)
+    if(db_SQLExecute(&this->dbHandle) == DB_RESULT_ERROR)
         throw runtime_error("DBUtil insert(db_SQLExecute)...");
 }

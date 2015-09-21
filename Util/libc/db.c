@@ -41,31 +41,31 @@ void db_CleanEnv(DB_TYPE type){
     }
 }
 
-DB_CONNECT* db_CreateConnectHandle(DB_CONNECT* dbConnect,DB_TYPE type){
-    dbConnect->type = type;
+DB_HANDLE* db_CreateConnectHandle(DB_HANDLE* dbHandle,DB_TYPE type){
+    dbHandle->type = type;
     switch(type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            dbConnect->hStmt = NULL;
-            dbConnect->stmt_res_fields = NULL;
-            dbConnect->stmt_res_bind = NULL;
-            dbConnect->stmt_res_has_bind = 0;
-            if(mysql_init(&dbConnect->Connect) == NULL)
-                dbConnect = NULL;
+            dbHandle->handle.mysql.hStmt = NULL;
+            dbHandle->handle.mysql.stmt_res_fields = NULL;
+            dbHandle->handle.mysql.stmt_res_bind = NULL;
+            dbHandle->handle.mysql.stmt_res_has_bind = 0;
+            if(mysql_init(&dbHandle->handle.mysql.mysql) == NULL)
+                dbHandle = NULL;
 #endif
             break;
         }
         default:
-            dbConnect = NULL;
+            dbHandle = NULL;
     }
-    return dbConnect;
+    return dbHandle;
 }
 
-void db_CloseConnectHandle(DB_CONNECT* dbConnect){
-    switch(dbConnect->type){
+void db_CloseConnectHandle(DB_HANDLE* dbHandle){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            mysql_close(&dbConnect->Connect);
+            mysql_close(&dbHandle->handle.mysql.mysql);
             mysql_thread_end();
 #endif
             break;
@@ -73,12 +73,12 @@ void db_CloseConnectHandle(DB_CONNECT* dbConnect){
     }
 }
 
-DB_RETURN db_SetConnectTimeout(DB_CONNECT* dbConnect,unsigned int sec){
+DB_RETURN db_SetConnectTimeout(DB_HANDLE* dbHandle,unsigned int sec){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_options(&dbConnect->Connect,MYSQL_OPT_CONNECT_TIMEOUT,(const char *)&sec) == 0)
+            if(mysql_options(&dbHandle->handle.mysql.mysql,MYSQL_OPT_CONNECT_TIMEOUT,(const char *)&sec) == 0)
                 res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -87,79 +87,79 @@ DB_RETURN db_SetConnectTimeout(DB_CONNECT* dbConnect,unsigned int sec){
     return res;
 }
 
-DB_CONNECT* db_SetupConnect(DB_CONNECT* dbConnect,const char* ip,unsigned short port,const char* user,const char* pwd,const char* database){
-    switch(dbConnect->type){
+DB_HANDLE* db_SetupConnect(DB_HANDLE* dbHandle,const char* ip,unsigned short port,const char* user,const char* pwd,const char* database){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_real_connect(&dbConnect->Connect,ip,user,pwd,database,port,NULL,CLIENT_MULTI_STATEMENTS) == NULL) {
-                dbConnect = NULL;
+            if(mysql_real_connect(&dbHandle->handle.mysql.mysql,ip,user,pwd,database,port,NULL,CLIENT_MULTI_STATEMENTS) == NULL) {
+                dbHandle = NULL;
                 break;
             }
             // mysql_query(env->hEnv,"set names utf8");
-            mysql_set_character_set(&dbConnect->Connect,"utf8");
+            mysql_set_character_set(&dbHandle->handle.mysql.mysql,"utf8");
 #endif
             break;
         }
         default:
-            dbConnect = NULL;
+            dbHandle = NULL;
     }
-    return dbConnect;
+    return dbHandle;
 }
 
 /* 事务 */
-DB_CONNECT* db_EnableAutoCommit(DB_CONNECT* dbConnect,int bool_val){
-    switch(dbConnect->type){
+DB_HANDLE* db_EnableAutoCommit(DB_HANDLE* dbHandle,int bool_val){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_autocommit(&dbConnect->Connect,bool_val != 0))
-                dbConnect = NULL;
+            if(mysql_autocommit(&dbHandle->handle.mysql.mysql,bool_val != 0))
+                dbHandle = NULL;
 #endif
             break;
         }
         default:
-            dbConnect = NULL;
+            dbHandle = NULL;
     }
-    return dbConnect;
+    return dbHandle;
 }
 
-DB_CONNECT* db_Commit(DB_CONNECT* dbConnect){
-    switch(dbConnect->type){
+DB_HANDLE* db_Commit(DB_HANDLE* dbHandle){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_commit(&dbConnect->Connect))
-                dbConnect = NULL;
+            if(mysql_commit(&dbHandle->handle.mysql.mysql))
+                dbHandle = NULL;
 #endif
             break;
         }
         default:
-            dbConnect = NULL;
+            dbHandle = NULL;
     }
-    return dbConnect;
+    return dbHandle;
 }
 
-DB_CONNECT* db_Rollback(DB_CONNECT* dbConnect){
-    switch(dbConnect->type){
+DB_HANDLE* db_Rollback(DB_HANDLE* dbHandle){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_rollback(&dbConnect->Connect))
-                dbConnect = NULL;
+            if(mysql_rollback(&dbHandle->handle.mysql.mysql))
+                dbHandle = NULL;
 #endif
             break;
         }
         default:
-            dbConnect = NULL;
+            dbHandle = NULL;
     }
-    return dbConnect;
+    return dbHandle;
 }
 
 /* SQL执行 */
-DB_RETURN db_AllocStmt(DB_CONNECT* dbConnect){
+DB_RETURN db_AllocStmt(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            dbConnect->hStmt = mysql_stmt_init(&dbConnect->Connect);
-            if(dbConnect->hStmt)
+            dbHandle->handle.mysql.hStmt = mysql_stmt_init(&dbHandle->handle.mysql.mysql);
+            if(dbHandle->handle.mysql.hStmt)
                 res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -168,13 +168,13 @@ DB_RETURN db_AllocStmt(DB_CONNECT* dbConnect){
     return res;
 }
 
-DB_RETURN db_CloseStmt(DB_CONNECT* dbConnect){
+DB_RETURN db_CloseStmt(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_stmt_close(dbConnect->hStmt) == 0) {
-                dbConnect->hStmt = NULL;
+            if(mysql_stmt_close(dbHandle->handle.mysql.hStmt) == 0) {
+                dbHandle->handle.mysql.hStmt = NULL;
                 res = DB_RESULT_SUCCESS;
             }
 #endif
@@ -184,12 +184,12 @@ DB_RETURN db_CloseStmt(DB_CONNECT* dbConnect){
     return res;
 }
 
-DB_RETURN db_SQLPrepare(DB_CONNECT* dbConnect,const char* sql,size_t length){
+DB_RETURN db_SQLPrepare(DB_HANDLE* dbHandle,const char* sql,size_t length){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if (mysql_stmt_prepare(dbConnect->hStmt, sql, length) == 0)
+            if (mysql_stmt_prepare(dbHandle->handle.mysql.hStmt, sql, length) == 0)
                 res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -198,12 +198,12 @@ DB_RETURN db_SQLPrepare(DB_CONNECT* dbConnect,const char* sql,size_t length){
     return res;
 }
 
-DB_RETURN db_SQLParamCount(DB_CONNECT* dbConnect,unsigned int* count){
+DB_RETURN db_SQLParamCount(DB_HANDLE* dbHandle,unsigned int* count){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type) {
+    switch(dbHandle->type) {
         case DB_TYPE_MYSQL: {
 #ifdef DB_ENABLE_MYSQL
-            *count = (unsigned int)mysql_stmt_param_count(dbConnect->hStmt);
+            *count = (unsigned int)mysql_stmt_param_count(dbHandle->handle.mysql.hStmt);
             res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -212,12 +212,12 @@ DB_RETURN db_SQLParamCount(DB_CONNECT* dbConnect,unsigned int* count){
     return res;
 }
 
-DB_RETURN db_SQLExecute(DB_CONNECT* dbConnect){
+DB_RETURN db_SQLExecute(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_stmt_execute(dbConnect->hStmt) == 0)
+            if(mysql_stmt_execute(dbHandle->handle.mysql.hStmt) == 0)
                 res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -227,12 +227,12 @@ DB_RETURN db_SQLExecute(DB_CONNECT* dbConnect){
 }
 
 /* 结果集 */
-DB_RETURN db_GetAutoIncrementValue(DB_CONNECT* dbConnect,unsigned long long* value){
+DB_RETURN db_GetAutoIncrementValue(DB_HANDLE* dbHandle,unsigned long long* value){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type) {
+    switch(dbHandle->type) {
         case DB_TYPE_MYSQL: {
 #ifdef DB_ENABLE_MYSQL
-            *value = mysql_stmt_insert_id(dbConnect->hStmt);
+            *value = mysql_stmt_insert_id(dbHandle->handle.mysql.hStmt);
             res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -241,12 +241,12 @@ DB_RETURN db_GetAutoIncrementValue(DB_CONNECT* dbConnect,unsigned long long* val
     return res;
 }
 
-DB_RETURN db_GetAffectedRows(DB_CONNECT* dbConnect,unsigned long long* rowCount){
+DB_RETURN db_GetAffectedRows(DB_HANDLE* dbHandle,unsigned long long* rowCount){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            my_ulonglong affectRows = mysql_stmt_affected_rows(dbConnect->hStmt);
+            my_ulonglong affectRows = mysql_stmt_affected_rows(dbHandle->handle.mysql.hStmt);
             if(affectRows != (my_ulonglong)~0) {
                 *rowCount = affectRows;
                 res = DB_RESULT_SUCCESS;
@@ -258,20 +258,20 @@ DB_RETURN db_GetAffectedRows(DB_CONNECT* dbConnect,unsigned long long* rowCount)
     return res;
 }
 
-DB_RETURN db_LoadResultFieldMetaData(DB_CONNECT* dbConnect){
+DB_RETURN db_LoadResultFieldMetaData(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            unsigned int fieldCount = mysql_stmt_field_count(dbConnect->hStmt);
+            unsigned int fieldCount = mysql_stmt_field_count(dbHandle->handle.mysql.hStmt);
             if(fieldCount > 0) {/* produce a result set */
-                dbConnect->stmt_res_has_bind = 0;
-                dbConnect->stmt_res_bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * fieldCount);
-                if (dbConnect->stmt_res_bind == NULL)
+                dbHandle->handle.mysql.stmt_res_has_bind = 0;
+                dbHandle->handle.mysql.stmt_res_bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * fieldCount);
+                if (dbHandle->handle.mysql.stmt_res_bind == NULL)
                     break;
-                memset(dbConnect->stmt_res_bind,0,sizeof(MYSQL_BIND) * fieldCount);
-                dbConnect->stmt_res_fields = mysql_stmt_result_metadata(dbConnect->hStmt);
-                if (dbConnect->stmt_res_fields)
+                memset(dbHandle->handle.mysql.stmt_res_bind,0,sizeof(MYSQL_BIND) * fieldCount);
+                dbHandle->handle.mysql.stmt_res_fields = mysql_stmt_result_metadata(dbHandle->handle.mysql.hStmt);
+                if (dbHandle->handle.mysql.stmt_res_fields)
                     res = DB_RESULT_SUCCESS;
             }
 #endif
@@ -281,12 +281,12 @@ DB_RETURN db_LoadResultFieldMetaData(DB_CONNECT* dbConnect){
     return res;
 }
 
-DB_RETURN db_GetResultFieldCount(DB_CONNECT* dbConnect,unsigned int* count){
+DB_RETURN db_GetResultFieldCount(DB_HANDLE* dbHandle,unsigned int* count){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            *count = mysql_stmt_field_count(dbConnect->hStmt);
+            *count = mysql_stmt_field_count(dbHandle->handle.mysql.hStmt);
             res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -295,12 +295,12 @@ DB_RETURN db_GetResultFieldCount(DB_CONNECT* dbConnect,unsigned int* count){
     return res;
 }
 
-const char* db_GetResultFieldName(DB_CONNECT* dbConnect,unsigned int fieldIndex){
+const char* db_GetResultFieldName(DB_HANDLE* dbHandle,unsigned int fieldIndex){
     const char* name = NULL;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            name = mysql_fetch_field_direct(dbConnect->stmt_res_fields,fieldIndex)->org_name;
+            name = mysql_fetch_field_direct(dbHandle->handle.mysql.stmt_res_fields,fieldIndex)->org_name;
 #endif
             break;
         }
@@ -308,12 +308,12 @@ const char* db_GetResultFieldName(DB_CONNECT* dbConnect,unsigned int fieldIndex)
     return name;
 }
 
-unsigned long db_GetResultFieldLength(DB_CONNECT* dbConnect,unsigned int fieldIndex){
+unsigned long db_GetResultFieldLength(DB_HANDLE* dbHandle,unsigned int fieldIndex){
     unsigned long length = 0;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            length = mysql_fetch_field_direct(dbConnect->stmt_res_fields,fieldIndex)->length;
+            length = mysql_fetch_field_direct(dbHandle->handle.mysql.stmt_res_fields,fieldIndex)->length;
 #endif
             break;
         }
@@ -321,13 +321,13 @@ unsigned long db_GetResultFieldLength(DB_CONNECT* dbConnect,unsigned int fieldIn
     return length;
 }
 
-DB_RETURN db_BindResultFieldBuffer(DB_CONNECT* dbConnect,unsigned int fieldIndex,void* buffer,size_t nbytes,unsigned long* realbytes){
+DB_RETURN db_BindResultFieldBuffer(DB_HANDLE* dbHandle,unsigned int fieldIndex,void* buffer,size_t nbytes,unsigned long* realbytes){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            MYSQL_BIND* bind = dbConnect->stmt_res_bind + fieldIndex;
-            bind->buffer_type = mysql_fetch_field_direct(dbConnect->stmt_res_fields,fieldIndex)->type;
+            MYSQL_BIND* bind = dbHandle->handle.mysql.stmt_res_bind + fieldIndex;
+            bind->buffer_type = mysql_fetch_field_direct(dbHandle->handle.mysql.stmt_res_fields,fieldIndex)->type;
             bind->buffer = buffer;
             bind->buffer_length = nbytes;
             bind->length = realbytes;
@@ -339,12 +339,12 @@ DB_RETURN db_BindResultFieldBuffer(DB_CONNECT* dbConnect,unsigned int fieldIndex
     return res;
 }
 
-DB_RETURN db_GetFirstResult(DB_CONNECT* dbConnect){
+DB_RETURN db_GetFirstResult(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_stmt_store_result(dbConnect->hStmt) == 0)
+            if(mysql_stmt_store_result(dbHandle->handle.mysql.hStmt) == 0)
                 res = DB_RESULT_MORE_RESULT;
 #endif
             break;
@@ -353,15 +353,15 @@ DB_RETURN db_GetFirstResult(DB_CONNECT* dbConnect){
     return res;
 }
 
-DB_RETURN db_GetNextResult(DB_CONNECT* dbConnect){
+DB_RETURN db_GetNextResult(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            dbConnect->stmt_res_fields = NULL;
-            dbConnect->stmt_res_bind = NULL;
-            dbConnect->stmt_res_has_bind = 0;
-            int ret = mysql_stmt_next_result(dbConnect->hStmt);
+            dbHandle->handle.mysql.stmt_res_fields = NULL;
+            dbHandle->handle.mysql.stmt_res_bind = NULL;
+            dbHandle->handle.mysql.stmt_res_has_bind = 0;
+            int ret = mysql_stmt_next_result(dbHandle->handle.mysql.hStmt);
             if(ret == 0)
                 res = DB_RESULT_MORE_RESULT;
             else if(ret == -1)
@@ -373,21 +373,21 @@ DB_RETURN db_GetNextResult(DB_CONNECT* dbConnect){
     return res;
 }
 
-DB_RETURN db_FreeResult(DB_CONNECT* dbConnect){
+DB_RETURN db_FreeResult(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type) {
+    switch(dbHandle->type) {
         case DB_TYPE_MYSQL: {
 #ifdef DB_ENABLE_MYSQL
-            if(dbConnect->stmt_res_fields) {
-                mysql_free_result(dbConnect->stmt_res_fields);
-                dbConnect->stmt_res_fields = NULL;
+            if(dbHandle->handle.mysql.stmt_res_fields) {
+                mysql_free_result(dbHandle->handle.mysql.stmt_res_fields);
+                dbHandle->handle.mysql.stmt_res_fields = NULL;
             }
-            if(dbConnect->stmt_res_bind){
-                free(dbConnect->stmt_res_bind);
-                dbConnect->stmt_res_bind = NULL;
-                dbConnect->stmt_res_has_bind = 0;
+            if(dbHandle->handle.mysql.stmt_res_bind){
+                free(dbHandle->handle.mysql.stmt_res_bind);
+                dbHandle->handle.mysql.stmt_res_bind = NULL;
+                dbHandle->handle.mysql.stmt_res_has_bind = 0;
             }
-            if(mysql_stmt_free_result(dbConnect->hStmt) == 0)
+            if(mysql_stmt_free_result(dbHandle->handle.mysql.hStmt) == 0)
                 res = DB_RESULT_SUCCESS;
 #endif
             break;
@@ -396,18 +396,18 @@ DB_RETURN db_FreeResult(DB_CONNECT* dbConnect){
     return res;
 }
 
-DB_RETURN db_FetchResult(DB_CONNECT* dbConnect){
+DB_RETURN db_FetchResult(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
-    switch(dbConnect->type){
+    switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(dbConnect->stmt_res_has_bind == 0) {
-                if(mysql_stmt_bind_result(dbConnect->hStmt,dbConnect->stmt_res_bind) == 0)
-                    dbConnect->stmt_res_has_bind = 1;
+            if(dbHandle->handle.mysql.stmt_res_has_bind == 0) {
+                if(mysql_stmt_bind_result(dbHandle->handle.mysql.hStmt,dbHandle->handle.mysql.stmt_res_bind) == 0)
+                    dbHandle->handle.mysql.stmt_res_has_bind = 1;
                 else
                     break;
             }
-            int ret = mysql_stmt_fetch(dbConnect->hStmt);
+            int ret = mysql_stmt_fetch(dbHandle->handle.mysql.hStmt);
             if(ret == 0 || ret == MYSQL_DATA_TRUNCATED)
                 res = DB_RESULT_SUCCESS;
             else if(ret == MYSQL_NO_DATA)

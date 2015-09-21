@@ -7,9 +7,6 @@
 using std::exception;
 
 const char* User::TABLE_NAME = "user";
-map<string,pair<void*,size_t> >& User::getTableFields(void){
-    return this->SQLTableFields;
-}
 
 User::User(void) {
     this->SQLTableFields["user_id"] = pair<void*,size_t>(userId,sizeof(userId));

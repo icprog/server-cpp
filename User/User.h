@@ -8,14 +8,13 @@
 #include <string>
 #include <map>
 #include "../Util/libc/db.h"
+#include "../Util/DBUtil.h"
 
 using std::string;
 using std::map;
 using std::pair;
 
-class User {
-private:
-    map<string,pair<void*,size_t> > SQLTableFields;
+class User: public DBTable{
 protected:
     char userId[32];
     char userName[64];
@@ -24,8 +23,6 @@ protected:
     unsigned long long id;
 public:
     static const char* TABLE_NAME;
-    map<string,pair<void*,size_t> >& getTableFields(void);
-
     User(void);
     ~User(void);
 };

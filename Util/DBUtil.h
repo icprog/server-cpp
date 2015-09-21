@@ -11,6 +11,7 @@
 
 using std::string;
 using std::map;
+using std::pair;
 
 class DBUtil{
 private:
@@ -24,6 +25,13 @@ public:
     bool get(OBJECT* object,const char* key,const char* value);
     template <typename OBJECT>
     void insert(OBJECT* object);
+};
+
+class DBTable{
+protected:
+    map<string,pair<void*,size_t> > SQLTableFields;
+protected:
+    map<string,pair<void*,size_t> >& getTableFields(void);
 };
 
 #endif //SERVER_DBUTIL_H

@@ -10,6 +10,10 @@ using std::stringstream;
 using std::pair;
 using std::runtime_error;
 
+map<string,pair<void*,size_t> >& DBTable::getTableFields(void){
+    return this->SQLTableFields;
+}
+
 DBUtil::DBUtil(DB_TYPE type) {
     if(db_CreateConnectHandle(&this->dbHandle,type) == NULL)
         throw runtime_error("new DBUtil(db_CreateConnectHandle)...");

@@ -17,6 +17,7 @@ using std::pair;
 class User: public DBTable{
 protected:
     char userId[32];
+    char password[32];
     char userName[64];
     char sessionId[32];
     DB_SQL_DATETIME_STRUCT loginTime;

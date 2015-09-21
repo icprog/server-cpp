@@ -263,7 +263,7 @@ EXEC_RETURN sock_Close(FD_SOCKET sockfd){
 #endif
 }
 
-EXEC_RETURN sock_Shut(FD_SOCKET sockfd){
+EXEC_RETURN sock_TcpShutdown(FD_SOCKET sockfd){
 #if defined(WIN32) || defined(_WIN64)
 	return shutdown(sockfd,SD_BOTH) == 0 ? EXEC_SUCCESS:EXEC_ERROR;
 #else
@@ -271,7 +271,7 @@ EXEC_RETURN sock_Shut(FD_SOCKET sockfd){
 #endif
 }
 
-EXEC_RETURN sock_ShutRD(FD_SOCKET sockfd){
+EXEC_RETURN sock_TcpShutdownRead(FD_SOCKET sockfd){
 #if defined(WIN32) || defined(_WIN64)
 	return shutdown(sockfd,SD_RECEIVE) == 0 ? EXEC_SUCCESS:EXEC_ERROR;
 #else
@@ -279,7 +279,7 @@ EXEC_RETURN sock_ShutRD(FD_SOCKET sockfd){
 #endif
 }
 
-EXEC_RETURN sock_ShutWR(FD_SOCKET sockfd){
+EXEC_RETURN sock_TcpShutdownWrite(FD_SOCKET sockfd){
 #if defined(WIN32) || defined(_WIN64)
 	return shutdown(sockfd,SD_SEND) == 0 ? EXEC_SUCCESS:EXEC_ERROR;
 #else

@@ -82,9 +82,9 @@ FD_SOCKET sock_TcpConnect(const struct sockaddr* addr,int msec);
 EXEC_RETURN sock_TcpListen(FD_SOCKET sockfd);
 FD_SOCKET sock_TcpAccept(FD_SOCKET listenfd,struct sockaddr* from);
 EXEC_RETURN sock_Close(FD_SOCKET sockfd);
-EXEC_RETURN sock_Shut(FD_SOCKET sockfd);
-EXEC_RETURN sock_ShutRD(FD_SOCKET sockfd);
-EXEC_RETURN sock_ShutWR(FD_SOCKET sockfd);
+EXEC_RETURN sock_TcpShutdown(FD_SOCKET sockfd);
+EXEC_RETURN sock_TcpShutdownRead(FD_SOCKET sockfd);
+EXEC_RETURN sock_TcpShutdownWrite(FD_SOCKET sockfd);
 /* SOCKET IO */
 int sock_Send(FD_SOCKET sockfd,const void* buf,unsigned int nbytes,const struct sockaddr* to);
 int sock_Recv(FD_SOCKET sockfd,void* buf,unsigned int nbytes,struct sockaddr* from);

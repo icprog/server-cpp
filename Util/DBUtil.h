@@ -30,7 +30,6 @@ public:
 class DBTable{
 protected:
     map<string,pair<void*,size_t> > SQLTableFields;
-protected:
     map<string,pair<void*,size_t> >& getTableFields(void);
 };
 

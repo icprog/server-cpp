@@ -428,12 +428,12 @@ EXEC_RETURN sock_NonBlock(FD_SOCKET sockfd,int bool_val){
 #endif
 }
 
-EXEC_RETURN sock_GetLocalAddr(FD_SOCKET sockfd,struct sockaddr* saddr){
+EXEC_RETURN sock_GetTcpLocalAddr(FD_SOCKET sockfd,struct sockaddr* saddr){
 	socklen_t slen = sizeof(struct sockaddr_storage);
 	return getsockname(sockfd,saddr,&slen) == 0 ? EXEC_SUCCESS:EXEC_ERROR;
 }
 
-EXEC_RETURN sock_GetPeerAddr(FD_SOCKET sockfd,struct sockaddr* saddr){
+EXEC_RETURN sock_GetTcpPeerAddr(FD_SOCKET sockfd,struct sockaddr* saddr){
 	socklen_t slen = sizeof(struct sockaddr_storage);
 	return getpeername(sockfd,saddr,&slen) == 0 ? EXEC_SUCCESS:EXEC_ERROR;
 }

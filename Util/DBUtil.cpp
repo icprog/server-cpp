@@ -10,10 +10,6 @@ using std::stringstream;
 using std::pair;
 using std::runtime_error;
 
-map<string,pair<void*,size_t> >& DBTable::getTableFields(void){
-    return this->SQLTableFields;
-}
-
 DBUtil::DBUtil(DB_TYPE type) {
     if(db_CreateConnectHandle(&this->dbHandle,type) == NULL)
         throw runtime_error("new DBUtil(db_CreateConnectHandle)...");
@@ -31,7 +27,7 @@ DBUtil::~DBUtil(void) {
 
 template <typename OBJECT>
 bool DBUtil::get(OBJECT* object,const char* key,const char* value){
-    map<string,pair<void*,size_t> > SQLTableFields = object->SQLTableFields();
+    map<string,pair<void*,size_t> >& SQLTableFields = object->SQLTableFields;
     stringstream ss("");
     ss << "select * from " << OBJECT::TABLE_NAME << " where " << key << " = " << value;
     string sql = ss.str();
@@ -67,7 +63,7 @@ bool DBUtil::get(OBJECT* object,const char* key,const char* value){
 
 template <typename OBJECT>
 void DBUtil::insert(OBJECT* object){
-    map<string,pair<void*,size_t> > SQLTableFields = object->SQLTableFields();
+    map<string,pair<void*,size_t> >& SQLTableFields = object->SQLTableFields;
     string fieldsName,fieldsValue;
     for(map<string,pair<void*,size_t> >::iterator iter = SQLTableFields.begin(); iter != SQLTableFields.end(); ++iter) {
         if(!fieldsName.empty())

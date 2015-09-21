@@ -12,27 +12,6 @@ void dumpFatalError(const char* API){
 void dumpNormalError(const char* desc){
     fprintf(stderr,"failure: %s\n",desc);
 }
-// main
-extern void userActivityLoop(FD_SOCKET sockfd,struct sockaddr* userAddr);
-void userHandleThread(THREAD* const thread){
-    int res;
-    struct sockaddr_storage userAddr;
-    FD_SOCKET sockfd;
-    // detach thread
-    res = thread_Detach(thread);
-    if(res != EXEC_SUCCESS)
-        dumpNormalError("user thread detach...");
-    // get user address
-    sockfd = (FD_SOCKET)(ADDRESS)thread_BootArg(thread);
-    sock_GetPeerAddr(sockfd,(struct sockaddr*)&userAddr);
-    //User Active Loop
-    userActivityLoop(sockfd,(struct sockaddr*)&userAddr);
-    // disconnect
-    res = sock_Shut(sockfd);
-    if(res != EXEC_SUCCESS)
-        dumpNormalError("user shutdown disconnect...");
-    free(thread);
-}
 //void db_test(void){
 //    DB_RETURN res;
 //    DB_CONNECT hdb;

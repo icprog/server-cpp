@@ -75,7 +75,7 @@ int main(int argc,char** argv) {
     res = sock_SetupEnv();
     if(res != EXEC_SUCCESS)
         dumpFatalError("sock_SetupEnv");
-    listenfd = socket(family,SOCK_STREAM,0);
+    listenfd = socket(family,SOCK_DGRAM,0);
     if(listenfd == INVALID_SOCKET)
         dumpFatalError("socket");
     res = sock_Text2Addr((struct sockaddr*)&listenAddr,family,NULL,port);
@@ -84,31 +84,12 @@ int main(int argc,char** argv) {
     res = sock_BindLocalAddr(listenfd,(struct sockaddr*)&listenAddr);
     if(res != EXEC_SUCCESS)
         dumpFatalError("sock_BindLocalAddr");
-    res = sock_TcpListen(listenfd);
-    if(res != EXEC_SUCCESS)
-        dumpFatalError("sock_TcpListen");
-    //accept user connect
-    while(1){
-        FD_SOCKET sockfd;
-        THREAD* userThread = NULL;
-        puts("wait accept user...");
-        sockfd = sock_TcpAccept(listenfd,(struct sockaddr*)&userAddr);
-        if(sockfd == INVALID_SOCKET)
-            dumpFatalError("sock_TcpAccept");
-        //create a user handle thread
-        userThread = (THREAD*)malloc(sizeof(THREAD));
-        if(userThread){
-            res = thread_Create(userThread,userHandleThread,(void*)(ADDRESS)sockfd);
-            if(res != EXEC_SUCCESS) {
-                sock_Shut(sockfd);
-                dumpNormalError("user thread create...");
-            }
-        }else{
-            sock_Shut(sockfd);
-            dumpNormalError("memory not enough...");
-        }
-    }
+    //accept user
+
+    //clean
     db_CleanEnv(DB_TYPE_MYSQL);
-    sock_CleanEnv();
+    res = sock_CleanEnv();
+    if(res != EXEC_SUCCESS)
+        dumpFatalError("sock_CleanEnv");
     return 0;
 }

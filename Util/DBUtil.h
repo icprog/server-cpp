@@ -21,7 +21,7 @@ public:
     explicit DBUtil(DB_TYPE type);
     ~DBUtil(void);
     template <typename OBJECT>
-    bool get(OBJECT* object,const char* key);
+    bool get(OBJECT* object,const char* key,const char* value);
     template <typename OBJECT>
     void insert(OBJECT* object);
 };

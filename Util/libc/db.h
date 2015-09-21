@@ -39,7 +39,8 @@ typedef struct DB_HANDLE{
 #endif
     }handle;
 }DB_HANDLE;
-typedef struct SQL_DATETIME_STRUCT{
+/* 类型 */
+typedef struct DB_SQL_DATETIME_STRUCT{
     union {
         char reserved[0];
 #ifdef DB_ENABLE_MYSQL
@@ -48,7 +49,7 @@ typedef struct SQL_DATETIME_STRUCT{
 #endif
     }st;
     DB_TYPE type;
-}SQL_DATETIME_STRUCT;
+}DB_SQL_DATETIME_STRUCT;
 
 #ifdef __cplusplus
 extern "C"{

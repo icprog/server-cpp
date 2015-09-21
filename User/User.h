@@ -7,18 +7,21 @@
 
 #include <string>
 #include <map>
+#include "../Util/libc/db.h"
 
 using std::string;
 using std::map;
 
 class User {
 private:
-    void* FIELDS[5];
+    void* FIELDS_BUFFER[5];
+    size_t FIELDS_LENGTH[5];
     map<string,string> SQLFields;
 protected:
     char userId[32];
     char userName[64];
     char sessionId[32];
+    DB_SQL_DATETIME_STRUCT loginTime;
     unsigned long long id;
 public:
     static const char* TABLE_NAME;

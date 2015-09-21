@@ -24,7 +24,31 @@ DBUtil::~DBUtil(void) {
 }
 
 template <typename OBJECT>
-bool DBUtil::get(OBJECT* object,const char* key){
+bool DBUtil::get(OBJECT* object,const char* key,const char* value){
+    stringstream ss("");
+    ss << "select * from " << OBJECT::TABLE_NAME << " where " << key << " = " << value;
+    string sql = ss.str();
+    ss.str("");
+    if(db_SQLPrepare(&this->dbHandle,sql.c_str(),sql.length()) == DB_RESULT_ERROR)
+        throw runtime_error("DBUtil get(db_SQLPrepare)...");
+    if(db_SQLExecute(&this->dbHandle) == DB_RESULT_ERROR)
+        throw runtime_error("DBUtil get(db_SQLExecute)...");
+    if(db_GetFirstResult(&this->dbHandle) == DB_RESULT_ERROR)
+        throw new runtime_error("DBUtil get(db_GetFirstResult)...");
+    if(db_LoadResultFieldMetaData(&this->dbHandle) == DB_RESULT_ERROR)
+        throw  runtime_error("DBUtil get(db_LoadResultFieldMetaData)...");
+    unsigned int fieldCount;
+    if(db_GetResultFieldCount(&this->dbHandle,&fieldCount) == DB_RESULT_ERROR)
+        throw new runtime_error("DBUtil get(db_GetResultFieldCount)...");
+    for(unsigned int i = 0; i < fieldCount; ++i) {
+        if(db_BindResultFieldBuffer(&this->dbHandle, i, object->FIELDS_BUFFER, object->FIELDS_LENGTH, NULL) == DB_RESULT_ERROR)
+            throw new runtime_error("DBUtil get(db_BindResultFieldBuffer)...");
+    }
+    int res = db_FetchResult(&this->dbHandle);
+    if(res == DB_RESULT_ERROR)
+        throw new runtime_error("DBUtil get(db_FetchResult)...");
+    if(res == DB_RESULT_SUCCESS)
+        return true;
     return false;
 }
 

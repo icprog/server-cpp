@@ -26,6 +26,9 @@ public:
     static const char* TABLE_NAME;
     User(void);
     ~User(void);
+    const char* getUserId(void) const;
+    const char* getUserName(void) const;
+    const char* getPassword(void) const;
 };
 
 #endif //SERVER_USER_H

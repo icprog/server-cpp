@@ -17,3 +17,15 @@ User::User(void) {
     setSQLFields("id",DB_FIELD_TYPE_BIGINT,&id,sizeof(id));
 }
 User::~User(void) { }
+
+const char* User::getUserId(void) const{
+    return this->userId;
+}
+
+const char* User::getUserName(void) const{
+    return this->userName;
+}
+
+const char* User::getPassword(void) const{
+    return this->password;
+}

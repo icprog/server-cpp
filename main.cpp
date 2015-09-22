@@ -27,21 +27,17 @@ int main(int argc,char** argv) {
     if(sock_BindLocalAddr(listenfd,(struct sockaddr*)&listenAddr) != EXEC_SUCCESS)
         dumpFatalError("sock_BindLocalAddr");
     //accept user
-//    DB_HANDLE dbHandle;
-//    db_CreateConnectHandle(&dbHandle,DB_TYPE_MYSQL);
-//    db_SetupConnect(&dbHandle,"127.0.0.1",MYSQL_PORT,"root","123456","chat");
-//    db_AllocStmt(&dbHandle);
-//    const char* sql = "select login_time from user";
-//    db_SQLPrepare(&dbHandle,sql,strlen(sql));
-//    db_SQLExecute(&dbHandle);
-//    db_GetFirstResult(&dbHandle);
-//    db_LoadResultFieldMetaData(&dbHandle);
-//    DB_SQL_DATETIME_STRUCT tval;
-//    db_BindResultFieldBuffer(&dbHandle,0,&tval,sizeof(tval),NULL);
-//    db_FetchResult(&dbHandle);
-//    db_FreeResult(&dbHandle);
-//    db_CloseStmt(&dbHandle);
-//    db_CloseConnectHandle(&dbHandle);
+//    try{
+//        DBUtil dbUtil(DB_TYPE_MYSQL);
+//        User user;
+//        if(dbUtil.get(&user,"id","2")){
+//            printf("userId:%s\nuserName:%s\npassword:%s\n",user.getUserId(),user.getUserName(),user.getPassword());
+//        }else{
+//            puts("user not found");
+//        }
+//    }catch(...){
+//        puts("db error");
+//    }
     // db clean
     db_CleanEnv(DB_TYPE_MYSQL);
     // socket clean

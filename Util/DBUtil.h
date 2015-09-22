@@ -28,8 +28,16 @@ public:
 };
 
 class DBTable{
+public:
+    typedef struct DBTableFieldsAttr{
+        void* buffer;
+        size_t nbytes;
+        bool alterable;
+    }DBTableFieldsAttr;
+    map<string,DBTable::DBTableFieldsAttr>& getSQLTableFields(void);
 protected:
-    map<string,pair<void*,size_t> > SQLTableFields;
+    map<string,DBTable::DBTableFieldsAttr> SQLTableFields;
+    void setSQLFields(const char* key,void* buffer,size_t length,bool alterable = true);
 };
 
 #endif //SERVER_DBUTIL_H

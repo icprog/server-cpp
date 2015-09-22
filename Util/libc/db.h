@@ -16,6 +16,20 @@ typedef enum{
     DB_RESULT_NO_RESULT,
     DB_RESULT_NO_DATA,
 }DB_RETURN;
+typedef enum{
+    DB_FIELD_TYPE_TINY,
+    DB_FIELD_TYPE_SMALLINT,
+    DB_FIELD_TYPE_INT,
+    DB_FIELD_TYPE_BIGINT,
+    DB_FIELD_TYPE_FLOAT,
+    DB_FIELD_TYPE_DOUBLE,
+    DB_FIELD_TYPE_DATETIME,
+    DB_FIELD_TYPE_TIMESTAMP,
+    DB_FIELD_TYPE_CHAR,
+    DB_FIELD_TYPE_BINARY,
+    DB_FIELD_TYPE_VARCHAR,
+    DB_FIELD_TYPE_VARBINARY,
+}DB_FIELD_TYPE;
 
 #ifdef DB_ENABLE_MYSQL
     #include <mysql/mysql.h>
@@ -72,7 +86,7 @@ DB_RETURN db_AllocStmt(DB_HANDLE *dbHandle);
 DB_RETURN db_CloseStmt(DB_HANDLE *dbHandle);
 DB_RETURN db_SQLPrepare(DB_HANDLE *dbHandle, const char *sql, size_t length);
 DB_RETURN db_SQLParamCount(DB_HANDLE *dbHandle, unsigned int *count);
-DB_RETURN db_SQLBindParam(DB_HANDLE *dbHandle,unsigned int paramIndex,int type,void* buffer,size_t nbytes);
+DB_RETURN db_SQLBindParam(DB_HANDLE *dbHandle,unsigned int paramIndex,DB_FIELD_TYPE type,void* buffer,size_t nbytes);
 DB_RETURN db_SQLExecute(DB_HANDLE *dbHandle);
 /* 结果集 */
 DB_RETURN db_GetAutoIncrementValue(DB_HANDLE *dbHandle, unsigned long long *value);

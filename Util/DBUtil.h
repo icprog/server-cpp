@@ -33,11 +33,12 @@ public:
         void* buffer;
         size_t nbytes;
         bool alterable;
+        DB_FIELD_TYPE type;
     }DBTableFieldsAttr;
     map<string,DBTable::DBTableFieldsAttr>& getSQLTableFields(void);
 protected:
     map<string,DBTable::DBTableFieldsAttr> SQLTableFields;
-    void setSQLFields(const char* key,void* buffer,size_t length);
+    void setSQLFields(const char* key,DB_FIELD_TYPE type,void* buffer,size_t length);
 };
 
 #endif //SERVER_DBUTIL_H

@@ -11,6 +11,24 @@
 extern "C"{
 #endif
 
+/* SQL类型字段转换表 */
+#ifdef DB_ENABLE_MYSQL
+static enum enum_field_types type_map_to_mysql[] = {
+    MYSQL_TYPE_TINY,
+    MYSQL_TYPE_SHORT,
+    MYSQL_TYPE_LONG,
+    MYSQL_TYPE_LONGLONG,
+    MYSQL_TYPE_FLOAT,
+    MYSQL_TYPE_DOUBLE,
+    MYSQL_TYPE_DATETIME,
+    MYSQL_TYPE_TIMESTAMP,
+    MYSQL_TYPE_STRING,
+    MYSQL_TYPE_STRING,
+    MYSQL_TYPE_VAR_STRING,
+    MYSQL_TYPE_VAR_STRING
+};
+#endif
+
 /* 句柄操作 */
 DB_RETURN db_InitEnv(DB_TYPE type){
     DB_RETURN res = DB_RESULT_ERROR;
@@ -188,6 +206,8 @@ DB_RETURN db_CloseStmt(DB_HANDLE* dbHandle){
     switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
+            free(dbHandle->handle.mysql.stmt_param_bind);
+            dbHandle->handle.mysql.stmt_param_bind = NULL;
             if(mysql_stmt_close(dbHandle->handle.mysql.hStmt) == 0) {
                 dbHandle->handle.mysql.hStmt = NULL;
                 res = DB_RESULT_SUCCESS;
@@ -236,7 +256,7 @@ DB_RETURN db_SQLParamCount(DB_HANDLE* dbHandle,unsigned int* count){
     return res;
 }
 
-DB_RETURN db_SQLBindParam(DB_HANDLE *dbHandle,unsigned int paramIndex,int type,void* buffer,size_t nbytes){
+DB_RETURN db_SQLBindParam(DB_HANDLE *dbHandle,unsigned int paramIndex,DB_FIELD_TYPE type,void* buffer,size_t nbytes){
     DB_RETURN res = DB_RESULT_ERROR;
     switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
@@ -244,7 +264,7 @@ DB_RETURN db_SQLBindParam(DB_HANDLE *dbHandle,unsigned int paramIndex,int type,v
             MYSQL_BIND* bind = dbHandle->handle.mysql.stmt_param_bind + paramIndex;
             bind->buffer = buffer;
             bind->buffer_length = nbytes;
-            bind->buffer_type = (enum enum_field_types)type;
+            bind->buffer_type = type_map_to_mysql[type];
             res = DB_RESULT_SUCCESS;
 #endif
             break;

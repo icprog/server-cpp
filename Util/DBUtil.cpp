@@ -82,6 +82,7 @@ void DBUtil::insert(OBJECT* object){
     ss.str("");
     if(db_SQLPrepare(&this->dbHandle,sql.c_str(),sql.length()) == DB_RESULT_ERROR)
         throw runtime_error("DBUtil insert(db_SQLPrepare)...");
+
     if(db_SQLExecute(&this->dbHandle) == DB_RESULT_ERROR)
         throw runtime_error("DBUtil insert(db_SQLExecute)...");
 }

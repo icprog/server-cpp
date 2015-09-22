@@ -16,6 +16,21 @@ typedef enum{
     DB_RESULT_NO_RESULT,
     DB_RESULT_NO_DATA,
 }DB_RETURN;
+//typedef enum{
+//    DB_FIELD_TYPE_TINYINT,
+//    DB_FIELD_TYPE_SMALLINT,
+//    DB_FIELD_TYPE_INT,
+//    DB_FIELD_TYPE_BIGINT,
+//    DB_FIELD_TYPE_FLOAT,
+//    DB_FIELD_TYPE_DOUBLE,
+//    DB_FIELD_TYPE_DATE,
+//    DB_FIELD_TYPE_TIME,
+//    DB_FIELD_TYPE_DATETIME,
+//    DB_FIELD_TYPE_TIMESTAMP,
+//    DB_FIELD_TYPE_BLOB,
+//    DB_FIELD_TYPE_CHAR,
+//    DB_FIELD_TYPE_VARCHAR,
+//}DB_FIELD_TYPE;
 
 #ifdef DB_ENABLE_MYSQL
     #include <mysql/mysql.h>
@@ -62,6 +77,7 @@ DB_HANDLE *db_CreateConnectHandle(DB_HANDLE *dbHandle, DB_TYPE type);
 void db_CloseConnectHandle(DB_HANDLE *dbHandle);
 DB_RETURN db_SetConnectTimeout(DB_HANDLE* dbHandle,unsigned int sec);
 DB_HANDLE *db_SetupConnect(DB_HANDLE *dbHandle, const char *ip, unsigned short port, const char *user, const char *pwd, const char *database);
+DB_RETURN db_TestConnectAlive(DB_HANDLE *dbHandle);
 /* 事务 */
 DB_HANDLE *db_EnableAutoCommit(DB_HANDLE *dbHandle, int bool_val);
 DB_HANDLE *db_Commit(DB_HANDLE *dbHandle);

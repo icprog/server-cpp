@@ -106,6 +106,20 @@ DB_HANDLE* db_SetupConnect(DB_HANDLE* dbHandle,const char* ip,unsigned short por
     return dbHandle;
 }
 
+DB_RETURN db_TestConnectAlive(DB_HANDLE *dbHandle){
+    DB_RETURN res = DB_RESULT_ERROR;
+    switch(dbHandle->type){
+        case DB_TYPE_MYSQL:{
+#ifdef DB_ENABLE_MYSQL
+            if(mysql_ping(&dbHandle->handle.mysql.mysql) == 0)
+                res = DB_RESULT_SUCCESS;
+#endif
+            break;
+        }
+    }
+    return res;
+}
+
 /* 事务 */
 DB_HANDLE* db_EnableAutoCommit(DB_HANDLE* dbHandle,int bool_val){
     switch(dbHandle->type){

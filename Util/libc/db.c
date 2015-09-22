@@ -49,6 +49,7 @@ DB_HANDLE* db_CreateConnectHandle(DB_HANDLE* dbHandle,DB_TYPE type){
             dbHandle->handle.mysql.hStmt = NULL;
             dbHandle->handle.mysql.stmt_res_fields = NULL;
             dbHandle->handle.mysql.stmt_res_bind = NULL;
+            dbHandle->handle.mysql.stmt_param_bind = NULL;
             dbHandle->handle.mysql.stmt_res_has_bind = 0;
             if(mysql_init(&dbHandle->handle.mysql.mysql) == NULL)
                 dbHandle = NULL;
@@ -203,8 +204,17 @@ DB_RETURN db_SQLPrepare(DB_HANDLE* dbHandle,const char* sql,size_t length){
     switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if (mysql_stmt_prepare(dbHandle->handle.mysql.hStmt, sql, length) == 0)
-                res = DB_RESULT_SUCCESS;
+            if (mysql_stmt_prepare(dbHandle->handle.mysql.hStmt, sql, length) == 0) {
+                unsigned int paramCount = (unsigned int)mysql_stmt_param_count(dbHandle->handle.mysql.hStmt);
+                if(paramCount){
+                    dbHandle->handle.mysql.stmt_param_bind = (MYSQL_BIND*)malloc(sizeof(MYSQL_BIND) * paramCount);
+                    if(dbHandle->handle.mysql.stmt_param_bind){
+                        memset(dbHandle->handle.mysql.stmt_param_bind,0,sizeof(MYSQL_BIND) * paramCount);
+                        res = DB_RESULT_SUCCESS;
+                    }
+                }else
+                    res = DB_RESULT_SUCCESS;
+            }
 #endif
             break;
         }
@@ -226,13 +236,37 @@ DB_RETURN db_SQLParamCount(DB_HANDLE* dbHandle,unsigned int* count){
     return res;
 }
 
+DB_RETURN db_SQLBindParam(DB_HANDLE *dbHandle,unsigned int paramIndex,int type,void* buffer,size_t nbytes){
+    DB_RETURN res = DB_RESULT_ERROR;
+    switch(dbHandle->type){
+        case DB_TYPE_MYSQL:{
+#ifdef DB_ENABLE_MYSQL
+            MYSQL_BIND* bind = dbHandle->handle.mysql.stmt_param_bind + paramIndex;
+            bind->buffer = buffer;
+            bind->buffer_length = nbytes;
+            bind->buffer_type = (enum enum_field_types)type;
+            res = DB_RESULT_SUCCESS;
+#endif
+            break;
+        }
+    }
+    return res;
+}
+
 DB_RETURN db_SQLExecute(DB_HANDLE* dbHandle){
     DB_RETURN res = DB_RESULT_ERROR;
     switch(dbHandle->type){
         case DB_TYPE_MYSQL:{
 #ifdef DB_ENABLE_MYSQL
-            if(mysql_stmt_execute(dbHandle->handle.mysql.hStmt) == 0)
+            if(dbHandle->handle.mysql.stmt_param_bind){
+                if(mysql_stmt_bind_param(dbHandle->handle.mysql.hStmt,dbHandle->handle.mysql.stmt_param_bind))
+                    break;
+            }
+            if(mysql_stmt_execute(dbHandle->handle.mysql.hStmt) == 0) {
+                free(dbHandle->handle.mysql.stmt_param_bind);
+                dbHandle->handle.mysql.stmt_param_bind = NULL;
                 res = DB_RESULT_SUCCESS;
+            }
 #endif
             break;
         }

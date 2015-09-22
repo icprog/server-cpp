@@ -65,8 +65,19 @@ bool DBUtil::get(OBJECT* object,const char* key,const char* value){
 template <typename OBJECT>
 void DBUtil::insert(OBJECT* object){
     map<string,DBTable::DBTableFieldsAttr>& SQLTableFields = object->getSQLTableFields();
+    string fields,args;
+    for(map<string,DBTable::DBTableFieldsAttr>::iterator iter = SQLTableFields.begin(); iter != SQLTableFields.end(); ++iter) {
+        if(iter->second.alterable){
+            if(!fields.empty())
+                fields += ",";
+            fields += iter->first;
+            if(!args.empty())
+                args += ",";
+            args += "?";
+        }
+    }
     stringstream ss("");
-
+    ss << "insert into " << OBJECT::TABLE_NAME << " (" << fields << ") values (" << args << ")";
     string sql = ss.str();
     ss.str("");
     if(db_SQLPrepare(&this->dbHandle,sql.c_str(),sql.length()) == DB_RESULT_ERROR)
@@ -79,7 +90,7 @@ void DBUtil::insert(OBJECT* object){
 map<string,DBTable::DBTableFieldsAttr>& DBTable::getSQLTableFields(void){
     return SQLTableFields;
 }
-void DBTable::setSQLFields(const char* key,void* buffer,size_t nbytes,bool alterable){
-    DBTable::DBTableFieldsAttr attr = {buffer,nbytes,alterable};
+void DBTable::setSQLFields(const char* key,void* buffer,size_t nbytes){
+    DBTable::DBTableFieldsAttr attr = {buffer,nbytes,false};
     SQLTableFields[key] = attr;
 }

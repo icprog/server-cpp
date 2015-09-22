@@ -37,7 +37,7 @@ public:
     map<string,DBTable::DBTableFieldsAttr>& getSQLTableFields(void);
 protected:
     map<string,DBTable::DBTableFieldsAttr> SQLTableFields;
-    void setSQLFields(const char* key,void* buffer,size_t length,bool alterable = true);
+    void setSQLFields(const char* key,void* buffer,size_t length);
 };
 
 #endif //SERVER_DBUTIL_H

@@ -14,6 +14,6 @@ User::User(void) {
     setSQLFields("username",userName,sizeof(userName));
     setSQLFields("session_id",sessionId,sizeof(sessionId));
     setSQLFields("login_time",&loginTime,sizeof(loginTime));
-    setSQLFields("id",&id,sizeof(id),false);
+    setSQLFields("id",&id,sizeof(id));
 }
 User::~User(void) { }

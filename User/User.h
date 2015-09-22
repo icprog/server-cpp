@@ -14,7 +14,7 @@ using std::string;
 using std::map;
 using std::pair;
 
-class User: public DBTable{
+class User: public SQL_OBJECT{
 protected:
     char userId[32];
     char password[32];
@@ -23,12 +23,23 @@ protected:
     DB_SQL_DATETIME_STRUCT loginTime;
     unsigned long long id;
 public:
-    static const char* TABLE_NAME;
+    const char* getTableName(void);
     User(void);
     ~User(void);
     const char* getUserId(void) const;
-    const char* getUserName(void) const;
+    void setUserId(const char* userId);
+
     const char* getPassword(void) const;
+    void setPassword(const char* password);
+
+    const char* getUserName(void) const;
+    void setUserName(const char* userName);
+
+    const char* getSessionId() const;
+    void setSessionId(const char* sessionId);
+
+    const DB_SQL_DATETIME_STRUCT& getLoginTime(void) const;
+    void setLoginTime(const DB_SQL_DATETIME_STRUCT& loginTime);
 };
 
 #endif //SERVER_USER_H

@@ -2,6 +2,8 @@
 #include "Util/libc/socket.h"
 #include "Util/libc/process.h"
 #include "Util/libc/db.h"
+#include "Util/DBUtil.h"
+#include "User/User.h"
 
 // 输出错误日志
 void dumpFatalError(const char* API){
@@ -30,10 +32,16 @@ int main(int argc,char** argv) {
 //    try{
 //        DBUtil dbUtil(DB_TYPE_MYSQL);
 //        User user;
-//        if(dbUtil.get(&user,"id","2")){
-//            printf("userId:%s\nuserName:%s\npassword:%s\n",user.getUserId(),user.getUserName(),user.getPassword());
+//        unsigned long long id = 2;
+//        if(dbUtil.get(&user,"id",&id)) {
+//            user.setSessionId("bbbbbbb");
+//            dbUtil.update(&user,"id");
+////            if(db_Rollback(dbUtil.getHandle()))
+////                puts("rollback");
+//            if(db_Commit(dbUtil.getHandle()))
+//                puts("commit");
 //        }else{
-//            puts("user not found");
+//            puts("not found");
 //        }
 //    }catch(...){
 //        puts("db error");

@@ -34,7 +34,7 @@ int main(int argc,char** argv) {
 //        User user;
 //        unsigned long long id = 2;
 //        if(dbUtil.get(&user,"id",&id)) {
-//            user.setSessionId("bbbbbbb");
+//            user.setSessionId("cccbb");
 //            dbUtil.update(&user,"id");
 ////            if(db_Rollback(dbUtil.getHandle()))
 ////                puts("rollback");

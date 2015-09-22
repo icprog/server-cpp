@@ -8,14 +8,10 @@
 #include "libc/db.h"
 #include <map>
 #include <string>
-#include <sstream>
-#include <stdexcept>
 
 using std::string;
-using std::stringstream;
 using std::map;
 using std::pair;
-using std::runtime_error;
 
 class SQL_OBJECT{
 public:
@@ -44,6 +40,8 @@ public:
     explicit DBUtil(DB_TYPE type);
     ~DBUtil(void);
     DB_HANDLE* getHandle(void) const;
+    void commit(void) const;
+    void rollback(void) const;
 
     bool get(SQL_OBJECT* object,const char* key,void* value);
     void insert(SQL_OBJECT* object);

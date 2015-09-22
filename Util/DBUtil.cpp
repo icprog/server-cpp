@@ -3,6 +3,13 @@
 //
 
 #include "DBUtil.h"
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
+using std::string;
+using std::stringstream;
+using std::runtime_error;
 
 //SQL_OBJECT
 map<string,SQL_OBJECT::DBTableFieldsAttr>& SQL_OBJECT::getSQLTableFields(void){
@@ -36,6 +43,16 @@ DBUtil::~DBUtil(void) {
 
 DB_HANDLE* DBUtil::getHandle(void) const{
     return &this->dbHandle;
+}
+
+void DBUtil::commit(void) const{
+    if(db_Commit(&this->dbHandle) == NULL)
+        throw runtime_error("DBUtil commit(db_Commit)...");
+}
+
+void DBUtil::rollback(void) const{
+    if(db_Rollback(&this->dbHandle) == NULL)
+        throw runtime_error("DBUtil rollback(db_Rollback)...");
 }
 
 bool DBUtil::get(SQL_OBJECT* object,const char* key,void* value){
